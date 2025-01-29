@@ -1,69 +1,168 @@
 import pygame
 from os.path import join
-from random import randint
+from random import randint, uniform
 
+class Player(pygame.sprite.Sprite): # defining a player class and inheriting from sprite class
+    # initializing attributes
+    def __init__(self, groups):             # initializing player class
+        super().__init__(groups)          # initializing parent class
+        self.image = pygame.image.load(join('..', 'images', 'player.png')).convert_alpha()
+        self.rect = self.image.get_frect(center = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2))
+        self.direction = pygame.math.Vector2(0, 0)
+        self.speed = 300
+
+        # laser cooldown
+        self.can_shoot = True
+        self.laser_shoot_time = 0
+        self.cooldown_duration = 400
+        
+
+    # initializing methods
+    def laser_timer(self):
+        if self.can_shoot == False:
+            current_time = pygame.time.get_ticks()
+            if current_time - self.laser_shoot_time >= self.cooldown_duration:
+                self.can_shoot = True
+
+    def update(self, dt):
+        keys = pygame.key.get_pressed()
+        self.direction.x = int(keys[pygame.K_RIGHT]) - int(keys[pygame.K_LEFT])     
+        self.direction.y = int(keys[pygame.K_DOWN]) - int(keys[pygame.K_UP])
+        if self.direction:
+            self.direction = self.direction.normalize()
+        self.rect.center += self.direction * self.speed * dt
+
+        recent_keys = pygame.key.get_just_pressed()
+        if recent_keys[pygame.K_SPACE] and self.can_shoot:
+            Laser(laser_surf, self.rect.midtop, (all_sprites, laser_sprites))
+            self.can_shoot = False
+            self.laser_shoot_time = pygame.time.get_ticks()
+        
+        self.laser_timer()
+
+class Star(pygame.sprite.Sprite): 
+    def __init__(self, groups, surf):
+        super().__init__(groups)
+        self.image = surf
+        self.rect = self.image.get_frect(center = (randint(0, WINDOW_WIDTH), randint(0, WINDOW_HEIGHT)))
+
+class Laser(pygame.sprite.Sprite):
+    def __init__(self,surf,pos,groups):
+        super().__init__(groups)
+        self.image = surf
+        self.rect = self.image.get_frect(midbottom = pos)
+        laser_sound.play()
+
+    def update(self, dt):
+        self.rect.centery -= 400 * dt
+        if self.rect.bottom < 0:
+            self.kill()
+
+class Meteor(pygame.sprite.Sprite):
+    def __init__(self, groups, surf):
+        super().__init__(groups)
+        self.original_surf = surf
+        self.image = self.original_surf
+        self.rect = self.image.get_frect(center = (randint(0, WINDOW_WIDTH), 0))
+        self.direction = pygame.Vector2(uniform(-0.5, 0.5), 1)
+        self.speed = randint(400,500)
+        self.rotation_speed = randint(80,160)
+        self.rotation = 0
+
+    def update(self, dt):
+        self.rect.center += self.direction * self.speed * dt
+        if self.rect.top >= WINDOW_HEIGHT:
+            self.kill()
+        self.rotation += self.rotation_speed * dt
+        self.image = pygame.transform.rotozoom(self.original_surf, self.rotation, 1)
+        self.rect = self.image.get_frect(center = self.rect.center)
+
+class AnimatedExplosion(pygame.sprite.Sprite):
+    def __init__(self, frames, pos, groups):
+        super().__init__(groups)
+        self.frames = frames
+        self.frame_index = 0
+        self.image = self.frames[self.frame_index]
+        self.rect = self.image.get_frect(center = pos)
+        explosion_sound.play()
+
+    def update(self, dt):
+        self.frame_index += 20 * dt
+        if self.frame_index < len(self.frames):
+            self.image = self.frames[int(self.frame_index)]
+        else:
+            self.kill()
+
+def collisions():
+    global running
+    collision_sprites = pygame.sprite.spritecollide(player, meteor_sprites, True, pygame.sprite.collide_mask)
+    if collision_sprites:
+        running = False
+
+    for laser in laser_sprites:
+        collision = pygame.sprite.spritecollide(laser, meteor_sprites, True)
+        if collision:
+            laser.kill()
+            AnimatedExplosion(explosion_frames, laser.rect.midtop, all_sprites)
+
+
+def display_score():
+    current_time = int(pygame.time.get_ticks() / 1000)
+    text_surf = font.render(str(current_time), True, '#F0F0F0')
+    text_rect = text_surf.get_frect(midbottom = (WINDOW_WIDTH / 2,WINDOW_HEIGHT - 50))
+    display_surface.blit(text_surf, text_rect)
+    pygame.draw.rect(display_surface, '#F0F0F0', text_rect.inflate(20, 10).move(0, -6), 5, 10)
+
+# general setup
 pygame.init()
-
-# create a screen and set the caption
 WINDOW_WIDTH, WINDOW_HEIGHT = 1280, 720
 display_surface = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption("Space Shooter") 
-
-#player icon surface
-player_surf = pygame.image.load(join('..', 'images', 'player.png')).convert_alpha()
-player_rect = player_surf.get_frect(center = (randint(10, WINDOW_WIDTH - 10), randint(10, WINDOW_HEIGHT - 10)))
-
-# loading star image and generating 20 random coordinates
-star_surf = pygame.image.load(join('..', 'images', 'star.png')).convert_alpha()
-star_positions = [(randint(0, WINDOW_WIDTH), randint(0, WINDOW_HEIGHT)) for i in range(20)]
-
-meteor_surf = pygame.image.load(join('..', 'images', 'meteor.png')).convert_alpha()
-meteor_rect = meteor_surf.get_frect(center = (640, 360))
-
-laser_surf = pygame.image.load(join('..', 'images', 'laser.png')).convert_alpha()
-laser_rect = laser_surf.get_frect(bottomleft = (20, 700))
-
 running = True
 clock = pygame.time.Clock()
-speed = 0.5
-x_direction = 1
-y_direction = -1
+
+# import
+laser_surf = pygame.image.load(join('..', 'images', 'laser.png')).convert_alpha()
+meteor_surf = pygame.image.load(join('..', 'images', 'meteor.png')).convert_alpha()
+star_surf = pygame.image.load(join('..', 'images', 'star.png')).convert_alpha()
+font = pygame.font.Font(join('..', 'images', 'Oxanium-Bold.ttf'), 40)
+explosion_frames = [pygame.image.load(join('..', 'images', 'explosion', f'{i}.png')).convert_alpha() for i in range(21)]
+
+laser_sound = pygame.mixer.Sound(join('..', 'audio', 'laser.wav'))
+laser_sound.set_volume(0.2)
+explosion_sound = pygame.mixer.Sound(join('..', 'audio', 'explosion.wav'))
+explosion_sound.set_volume(0.15)
+game_music = pygame.mixer.Sound(join('..', 'audio', 'game_music.wav'))
+game_music.set_volume(0.125)
+game_music.play(loops= -1)
+
+# sprites
+all_sprites = pygame.sprite.Group()
+meteor_sprites = pygame.sprite.Group()
+laser_sprites = pygame.sprite.Group()
+for i in range(20):
+    Star(all_sprites, star_surf)
+player = Player(all_sprites)
+
+#custom meteor event
+meteor_event = pygame.event.custom_type()
+pygame.time.set_timer(meteor_event, 500)
+
 while running:
-    clock.tick(0)
+    dt = clock.tick() / 1000 # getting the delta time in seconds
     #event tracker
     for event in pygame.event.get():
         if event.type == pygame.QUIT: # when x clicked , exit loop
             running = False
-
+        if event.type == meteor_event:
+            Meteor((all_sprites, meteor_sprites), meteor_surf)
+    all_sprites.update(dt)
+    collisions()
     #colours the background and draws the stars
-    display_surface.fill('navajowhite4')
-    for coord in star_positions:
-        display_surface.blit(star_surf, coord)
-
-    # Makes player bounce around the screen
-    player_rect.x += x_direction * speed
-    if player_rect.right > WINDOW_WIDTH or player_rect.left < 0:
-        x_direction *= -1
-    player_rect.y += y_direction * speed
-    if player_rect.bottom > WINDOW_HEIGHT or player_rect.top < 0:
-        y_direction *= -1
-
-    #stop player moving if he touches corner perfectly
-    if player_rect.left <= 0 and player_rect.top <= 0:
-        speed = 0
-    if player_rect.right >= WINDOW_WIDTH and player_rect.bottom >= WINDOW_HEIGHT:
-        speed = 0
-    if player_rect.left <= 0 and player_rect.bottom >= WINDOW_HEIGHT:
-        speed = 0
-    if player_rect.right >= WINDOW_WIDTH and player_rect.top <= 0:
-        speed = 0
-    
- 
-    # draws the player, metoer and laser
-    display_surface.blit(meteor_surf, meteor_rect)
-    display_surface.blit(laser_surf, laser_rect)
-    display_surface.blit(player_surf, player_rect)
+    display_surface.fill('#3a2e3f')
+    all_sprites.draw(display_surface)
+    display_score()
     pygame.display.update()
 
-
+# uninitializes the pygame module so that everything closes in a neat way
 pygame.quit()

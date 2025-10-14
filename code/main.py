@@ -7,16 +7,15 @@ class Player(pygame.sprite.Sprite): # defining a player class and inheriting fro
     def __init__(self, groups):             # initializing player class
         super().__init__(groups)          # initializing parent class
         self.image = pygame.image.load(join('..', 'images', 'player.png')).convert_alpha()
-        self.rect = self.image.get_frect(center = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2))
+        self.rect = self.image.get_frect(center = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 1.1))
         self.direction = pygame.math.Vector2(0, 0)
-        self.speed = 300
+        self.speed = 1000
 
         # laser cooldown
         self.can_shoot = True
         self.laser_shoot_time = 0
-        self.cooldown_duration = 400
+        self.cooldown_duration = 250
         
-
     # initializing methods
     def laser_timer(self):
         if self.can_shoot == False:
@@ -54,19 +53,20 @@ class Laser(pygame.sprite.Sprite):
         laser_sound.play()
 
     def update(self, dt):
-        self.rect.centery -= 400 * dt
+        self.rect.centery -= 1000 * dt
         if self.rect.bottom < 0:
             self.kill()
 
 class Meteor(pygame.sprite.Sprite):
     def __init__(self, groups, surf):
         super().__init__(groups)
-        self.original_surf = surf
+        self.scale_factor = uniform(1, 1.5)
+        self.original_surf = pygame.transform.smoothscale(surf,(101*self.scale_factor,84*self.scale_factor)) 
         self.image = self.original_surf
-        self.rect = self.image.get_frect(center = (randint(0, WINDOW_WIDTH), 0))
+        self.rect = (self.image.get_frect(center = (randint(0, WINDOW_WIDTH), 0)))
         self.direction = pygame.Vector2(uniform(-0.5, 0.5), 1)
-        self.speed = randint(400,500)
-        self.rotation_speed = randint(80,160)
+        self.speed = randint(900,1000)
+        self.rotation_speed = randint(100,200)
         self.rotation = 0
 
     def update(self, dt):
@@ -105,19 +105,18 @@ def collisions():
             laser.kill()
             AnimatedExplosion(explosion_frames, laser.rect.midtop, all_sprites)
 
-
 def display_score():
     current_time = int(pygame.time.get_ticks() / 1000)
     text_surf = font.render(str(current_time), True, '#F0F0F0')
-    text_rect = text_surf.get_frect(midbottom = (WINDOW_WIDTH / 2,WINDOW_HEIGHT - 50))
+    text_rect = text_surf.get_frect(midbottom = (WINDOW_WIDTH / 2, 100))
     display_surface.blit(text_surf, text_rect)
     pygame.draw.rect(display_surface, '#F0F0F0', text_rect.inflate(20, 10).move(0, -6), 5, 10)
 
 # general setup
 pygame.init()
-WINDOW_WIDTH, WINDOW_HEIGHT = 1280, 720
+WINDOW_WIDTH, WINDOW_HEIGHT = 2560, 1440
 display_surface = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
-pygame.display.set_caption("Space Shooter") 
+pygame.display.set_caption("Space Shooter")
 running = True
 clock = pygame.time.Clock()
 
@@ -132,8 +131,8 @@ laser_sound = pygame.mixer.Sound(join('..', 'audio', 'laser.wav'))
 laser_sound.set_volume(0.2)
 explosion_sound = pygame.mixer.Sound(join('..', 'audio', 'explosion.wav'))
 explosion_sound.set_volume(0.15)
-game_music = pygame.mixer.Sound(join('..', 'audio', 'game_music.wav'))
-game_music.set_volume(0.125)
+game_music = pygame.mixer.Sound(join('..', 'audio', 'Glorious Morning.wav'))
+game_music.set_volume(0.25)
 game_music.play(loops= -1)
 
 # sprites
@@ -146,7 +145,7 @@ player = Player(all_sprites)
 
 #custom meteor event
 meteor_event = pygame.event.custom_type()
-pygame.time.set_timer(meteor_event, 500)
+pygame.time.set_timer(meteor_event, 400)
 
 while running:
     dt = clock.tick() / 1000 # getting the delta time in seconds
@@ -156,7 +155,7 @@ while running:
             running = False
         if event.type == meteor_event:
             Meteor((all_sprites, meteor_sprites), meteor_surf)
-    all_sprites.update(dt)
+    all_sprites.update(dt)  
     collisions()
     #colours the background and draws the stars
     display_surface.fill('#3a2e3f')

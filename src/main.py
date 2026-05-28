@@ -6,7 +6,7 @@ class Player(pygame.sprite.Sprite): # defining a player class and inheriting fro
     # initializing attributes
     def __init__(self, groups):             # initializing player class
         super().__init__(groups)          # initializing parent class
-        self.image = pygame.image.load(join('..', 'images', 'player.png')).convert_alpha()
+        self.image = pygame.image.load(join('images', 'player.png')).convert_alpha()
         self.rect = self.image.get_frect(center = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 1.1))
         self.direction = pygame.math.Vector2(0, 0)
         self.speed = 1000
@@ -114,24 +114,25 @@ def display_score():
 
 # general setup
 pygame.init()
-WINDOW_WIDTH, WINDOW_HEIGHT = 2560, 1440
+screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+WINDOW_WIDTH, WINDOW_HEIGHT = screen.get_size()
 display_surface = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption("Space Shooter")
 running = True
 clock = pygame.time.Clock()
 
 # import
-laser_surf = pygame.image.load(join('..', 'images', 'laser.png')).convert_alpha()
-meteor_surf = pygame.image.load(join('..', 'images', 'meteor.png')).convert_alpha()
-star_surf = pygame.image.load(join('..', 'images', 'star.png')).convert_alpha()
-font = pygame.font.Font(join('..', 'images', 'Oxanium-Bold.ttf'), 40)
-explosion_frames = [pygame.image.load(join('..', 'images', 'explosion', f'{i}.png')).convert_alpha() for i in range(21)]
+laser_surf = pygame.image.load(join('images', 'laser.png')).convert_alpha()
+meteor_surf = pygame.image.load(join('images', 'meteor.png')).convert_alpha()
+star_surf = pygame.image.load(join('images', 'star.png')).convert_alpha()
+font = pygame.font.Font(join('images', 'Oxanium-Bold.ttf'), 40)
+explosion_frames = [pygame.image.load(join('images', 'explosion', f'{i}.png')).convert_alpha() for i in range(21)]
 
-laser_sound = pygame.mixer.Sound(join('..', 'audio', 'laser.wav'))
+laser_sound = pygame.mixer.Sound(join('audio', 'damage.ogg'))
 laser_sound.set_volume(0.2)
-explosion_sound = pygame.mixer.Sound(join('..', 'audio', 'explosion.wav'))
+explosion_sound = pygame.mixer.Sound(join('audio', 'explosion.ogg'))
 explosion_sound.set_volume(0.15)
-game_music = pygame.mixer.Sound(join('..', 'audio', 'Glorious Morning.wav'))
+game_music = pygame.mixer.Sound(join('audio', 'Glorious Morning.ogg'))
 game_music.set_volume(0.25)
 game_music.play(loops= -1)
 

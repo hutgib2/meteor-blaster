@@ -36,7 +36,10 @@ class Player(pygame.sprite.Sprite): # defining a player class and inheriting fro
             Laser(laser_surf, self.rect.midtop, (all_sprites, laser_sprites))
             self.can_shoot = False
             self.laser_shoot_time = pygame.time.get_ticks()
-        
+        # if recent_keys[pygame.K_p]:
+        #     global game_paused   
+        #     game_paused = not game_paused
+
         self.laser_timer()
 
 class Star(pygame.sprite.Sprite): 
@@ -119,6 +122,7 @@ WINDOW_WIDTH, WINDOW_HEIGHT = screen.get_size()
 display_surface = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption("Space Shooter")
 running = True
+game_paused = False
 clock = pygame.time.Clock()
 
 # import
@@ -152,10 +156,18 @@ while running:
     dt = clock.tick() / 1000 # getting the delta time in seconds
     #event tracker
     for event in pygame.event.get():
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_p:  
+            game_paused = not game_paused
         if event.type == pygame.QUIT: # when x clicked , exit loop
+            running = False    
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
             running = False
-        if event.type == meteor_event:
+        if event.type == meteor_event and not game_paused:
             Meteor((all_sprites, meteor_sprites), meteor_surf)
+    
+    if game_paused:
+        continue
+    
     all_sprites.update(dt)  
     collisions()
     #colours the background and draws the stars

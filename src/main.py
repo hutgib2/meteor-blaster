@@ -1,3 +1,6 @@
+import asyncio
+import pygame
+
 from game.settings import *
 from game.space_shooter import SpaceShooter
 

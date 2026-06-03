@@ -31,7 +31,7 @@ class Player(pygame.sprite.Sprite): # defining a player class and inheriting fro
             self.direction = self.direction.normalize()
         self.rect.center += self.direction * self.speed * dt
 
-        recent_keys = pygame.key.get_just_pressed()
+        recent_keys = pygame.key.get_pressed()
         if recent_keys[pygame.K_SPACE] and self.can_shoot:
             Laser(self.rect.midtop, self.laser_groups)
             self.can_shoot = False

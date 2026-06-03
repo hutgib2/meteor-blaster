@@ -1,5 +1,8 @@
 from game.settings import *
 
+explosion_sound = pygame.mixer.Sound(join('src', 'audio', 'explosion.ogg'))
+explosion_sound.set_volume(0.15)
+
 class Explosion(pygame.sprite.Sprite):
     def __init__(self, frames, pos, groups):
         super().__init__(groups)

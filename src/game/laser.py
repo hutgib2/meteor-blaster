@@ -1,9 +1,12 @@
 from game.settings import *
+laser_surf = pygame.image.load(join('src', 'images', 'laser.png')).convert_alpha()
+laser_sound = pygame.mixer.Sound(join('src', 'audio', 'damage.ogg'))
+laser_sound.set_volume(0.2)
 
 class Laser(pygame.sprite.Sprite):
-    def __init__(self,surf,pos,groups):
+    def __init__(self, pos, groups):
         super().__init__(groups)
-        self.image = surf
+        self.image = laser_surf
         self.rect = self.image.get_frect(midbottom = pos)
         laser_sound.play()
 

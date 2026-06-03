@@ -5,7 +5,7 @@ class Player(pygame.sprite.Sprite): # defining a player class and inheriting fro
     # initializing attributes
     def __init__(self, laser_groups, groups):             # initializing player class
         super().__init__(groups)          # initializing parent class
-        self.image = pygame.image.load(join('src', 'images', 'player.png')).convert_alpha()
+        self.image = pygame.image.load(join('assets', 'images', 'player.png')).convert_alpha()
         self.rect = self.image.get_frect(center = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 1.1))
         self.direction = pygame.math.Vector2(0, 0)
         self.speed = 1000

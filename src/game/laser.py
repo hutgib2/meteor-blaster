@@ -1,6 +1,6 @@
 from game.settings import *
-laser_surf = pygame.image.load(join('src', 'images', 'laser.png')).convert_alpha()
-laser_sound = pygame.mixer.Sound(join('src', 'audio', 'damage.ogg'))
+laser_surf = pygame.image.load(join('assets', 'images', 'laser.png')).convert_alpha()
+laser_sound = pygame.mixer.Sound(join('assets', 'audio', 'damage.ogg'))
 laser_sound.set_volume(0.2)
 
 class Laser(pygame.sprite.Sprite):

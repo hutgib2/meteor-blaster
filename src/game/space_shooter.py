@@ -56,7 +56,7 @@ class SpaceShooter():
 		pygame.draw.rect(screen, '#F0F0F0', self.text_rect.inflate(20, 10).move(0, -6), 5, 10)
 
 	async def run(self):
-		print("GAME RUNNING...")
+		# print("GAME RUNNING...")
 		while self.running:
 			dt = self.clock.tick() / 1000 # getting the delta time in seconds
 			await asyncio.sleep(0)

@@ -3,10 +3,10 @@ import pygame
 from game.space_shooter import SpaceShooter
 
 async def main():
-    print("STARTING...")
+    # print("STARTING...")
     game = SpaceShooter()
 
-    print("CREATED GAME...")
+    # print("CREATED GAME...")
     await game.run()
     # pygame.quit()
 

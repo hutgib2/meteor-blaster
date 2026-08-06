@@ -15,6 +15,9 @@ class SpaceShooter():
 		self.running = True
 		self.game_paused = False
 		self.clock = pygame.time.Clock()
+		self.start_time = pygame.time.get_ticks()
+		self.score = 0
+		self.spawn_rate = 500
 
 		# import
 		self.meteor_surf = pygame.image.load(join('assets', 'images', 'meteor.png')).convert_alpha()
@@ -30,13 +33,20 @@ class SpaceShooter():
 		self.meteor_sprites = pygame.sprite.Group()
 		self.laser_sprites = pygame.sprite.Group()
 		
-		for i in range(20):
+		for _ in range(20):
 			Star(self.all_sprites, self.star_surf)
 		self.player = Player((self.all_sprites, self.laser_sprites), self.all_sprites)
 
 		# create meteor timer
-		self.meteor_timer = Timer(400, lambda: Meteor((self.all_sprites, self.meteor_sprites), self.meteor_surf), repeat=True, autostart=True)
+		self.meteor_timer = Timer(self.spawn_rate, lambda: Meteor((self.all_sprites, self.meteor_sprites), self.meteor_surf), repeat=True, autostart=True)
+		self.spawn_rate_timer = Timer(1000, lambda: self.decrement_spawn_rate_timer(1), repeat=True, autostart=True)
 		
+	# create a new timer with an updated spawn rate 
+	def decrement_spawn_rate_timer(self, decrement):
+		if self.spawn_rate > 100:
+			self.spawn_rate -= decrement
+			self.meteor_timer = Timer(self.spawn_rate, lambda: Meteor((self.all_sprites, self.meteor_sprites), self.meteor_surf), repeat=True, autostart=True)
+
 	def collisions(self):
 		collision_sprites = pygame.sprite.spritecollide(self.player, self.meteor_sprites, True, pygame.sprite.collide_mask)
 		if collision_sprites:
@@ -47,16 +57,18 @@ class SpaceShooter():
 			if collision:
 				laser.kill()
 				Explosion(self.explosion_frames, laser.rect.midtop, self.all_sprites)
+				self.score += 5
+				self.decrement_spawn_rate_timer(5)
 
 	def display_score(self):
-		current_time = int(pygame.time.get_ticks() / 1000)
-		self.text_surf = self.font.render(str(current_time), True, '#F0F0F0')
+		current_time = (pygame.time.get_ticks() - self.start_time) // 1000
+		total_score = current_time + self.score
+		self.text_surf = self.font.render(str(total_score), True, '#F0F0F0')
 		self.text_rect = self.text_surf.get_frect(midbottom = (WINDOW_WIDTH / 2, 100))
 		screen.blit(self.text_surf, self.text_rect)
 		pygame.draw.rect(screen, '#F0F0F0', self.text_rect.inflate(20, 10).move(0, -6), 5, 10)
 
 	async def run(self):
-		# print("GAME RUNNING...")
 		while self.running:
 			dt = self.clock.tick() / 1000 # getting the delta time in seconds
 			await asyncio.sleep(0)
@@ -75,6 +87,7 @@ class SpaceShooter():
 
 			self.all_sprites.update(dt)  
 			self.meteor_timer.update()
+			self.spawn_rate_timer.update()
 			self.collisions()
 
 			#colours the background and draws the stars
@@ -83,3 +96,4 @@ class SpaceShooter():
 			self.display_score()
 			
 			pygame.display.update()
+		self.game_music.stop()

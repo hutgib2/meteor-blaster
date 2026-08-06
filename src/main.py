@@ -1,13 +1,9 @@
-import asyncio
 import pygame
-from game.space_shooter import SpaceShooter
+from game.menu import Menu
+import asyncio
 
 async def main():
-    # print("STARTING...")
-    game = SpaceShooter()
-
-    # print("CREATED GAME...")
-    await game.run()
-    # pygame.quit()
+    menu = Menu()
+    await menu.run()
 
 asyncio.run(main())

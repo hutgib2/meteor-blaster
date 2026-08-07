@@ -5,7 +5,8 @@ class Player(pygame.sprite.Sprite): # defining a player class and inheriting fro
     # initializing attributes
     def __init__(self, laser_groups, groups):             # initializing player class
         super().__init__(groups)          # initializing parent class
-        self.image = pygame.image.load(join('assets', 'images', 'player.png')).convert_alpha()
+        self.image = pygame.image.load(join('assets', 'images', 'ufo.png')).convert_alpha()
+        self.image = pygame.transform.smoothscale(self.image, (671/3, 273/3))
         self.rect = self.image.get_frect(center = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 1.1))
         self.direction = pygame.math.Vector2(0, 0)
         self.speed = 1000
@@ -26,7 +27,7 @@ class Player(pygame.sprite.Sprite): # defining a player class and inheriting fro
     def update(self, dt):
         keys = pygame.key.get_pressed()
         self.direction.x = int(keys[pygame.K_RIGHT]) - int(keys[pygame.K_LEFT])     
-        self.direction.y = int(keys[pygame.K_DOWN]) - int(keys[pygame.K_UP])
+        # self.direction.y = int(keys[pygame.K_DOWN]) - int(keys[pygame.K_UP])
         if self.direction:
             self.direction = self.direction.normalize()
         self.rect.center += self.direction * self.speed * dt

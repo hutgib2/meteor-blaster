@@ -1,5 +1,8 @@
 from game.settings import *
-laser_surf = pygame.image.load(join('assets', 'images', 'laser.png')).convert_alpha()
+from game.support import *
+
+# laser_surf = pygame.image.load(join('assets', 'images', 'double_laser.png')).convert_alpha()
+laser_surf = image_importer('assets', 'images', 'double_laser.png', scale_factor=0.1)
 laser_sound = pygame.mixer.Sound(join('assets', 'audio', 'damage.ogg'))
 laser_sound.set_volume(0.2)
 

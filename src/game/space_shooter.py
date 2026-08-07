@@ -9,6 +9,10 @@ from game.meteor import Meteor
 from game.laser import Laser
 from game.explosion import Explosion
 from game.timer import Timer
+from game.support import *
+
+# load in the bg image, make sure its the right size and display on screen
+# remove old code after
 
 class SpaceShooter():
 	def __init__(self):
@@ -21,9 +25,12 @@ class SpaceShooter():
 
 		# import
 		self.meteor_surf = pygame.image.load(join('assets', 'images', 'meteor.png')).convert_alpha()
-		self.star_surf = pygame.image.load(join('assets', 'images', 'star.png')).convert_alpha()
+		# self.star_surf = pygame.image.load(join('assets', 'images', 'star.png')).convert_alpha()
+		self.background_surf = pygame.image.load(join('assets', 'images', 'space_background.jpg'))
+		self.background_rect = self.background_surf.get_frect(center=(WINDOW_WIDTH/2, WINDOW_HEIGHT/2))
+		
 		self.font = pygame.font.Font(join('assets', 'images', 'Oxanium-Bold.ttf'), 40)
-		self.explosion_frames = [pygame.image.load(join('assets', 'images', 'explosion', f'{i}.png')).convert_alpha() for i in range(21)]
+		self.explosion_frames = folder_importer_list('assets', 'images', 'explosion', scale_factor=0.3)
 		self.game_music = pygame.mixer.Sound(join('assets', 'audio', 'Glorious Morning.ogg'))
 		self.game_music.set_volume(0.25)
 		self.game_music.play(loops= -1)
@@ -33,8 +40,8 @@ class SpaceShooter():
 		self.meteor_sprites = pygame.sprite.Group()
 		self.laser_sprites = pygame.sprite.Group()
 		
-		for _ in range(20):
-			Star(self.all_sprites, self.star_surf)
+		# for _ in range(20):
+		# 	Star(self.all_sprites, self.star_surf)
 		self.player = Player((self.all_sprites, self.laser_sprites), self.all_sprites)
 
 		# create meteor timer
@@ -90,8 +97,7 @@ class SpaceShooter():
 			self.spawn_rate_timer.update()
 			self.collisions()
 
-			#colours the background and draws the stars
-			screen.fill('#3a2e3f')
+			screen.blit(self.background_surf, self.background_rect)
 			self.all_sprites.draw(screen)
 			self.display_score()
 			

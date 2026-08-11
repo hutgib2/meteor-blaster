@@ -5,7 +5,7 @@ class Meteor(pygame.sprite.Sprite):
     def __init__(self, groups, surf):
         super().__init__(groups)
         self.scale_factor = uniform(1, 1.5)
-        self.original_surf = pygame.transform.smoothscale(surf,(101*self.scale_factor,84*self.scale_factor)) 
+        self.original_surf = pygame.transform.smoothscale(surf,(101*self.scale_factor,84*self.scale_factor))
         self.image = self.original_surf
         self.rect = (self.image.get_frect(center = (randint(0, WINDOW_WIDTH), 0)))
         self.direction = pygame.Vector2(uniform(-0.5, 0.5), 1)
@@ -20,3 +20,4 @@ class Meteor(pygame.sprite.Sprite):
         self.rotation += self.rotation_speed * dt
         self.image = pygame.transform.rotozoom(self.original_surf, self.rotation, 1)
         self.rect = self.image.get_frect(center = self.rect.center)
+

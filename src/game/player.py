@@ -1,15 +1,8 @@
 from game.settings import *
 from game.support import *
-from game.laser import Laser
-
-# Now you understand how the rotation works, use a similar setup to rotate the ufo
-# The UFO is slightly different:
-#   - he only rotates when he moves, the meteor is constantly spinning  X
-#   - he's only going to rotate up to some max angle (15 degrees)       X
-#   - when not moving he returns to original position                   
+from game.laser import Laser               
 
 class Player(pygame.sprite.Sprite):
-    # initializing attributes
     def __init__(self, laser_groups, groups):
         super().__init__(groups)
         self.original_surf = image_importer('assets', 'images', 'ufo.png', scale_factor=0.25)
@@ -22,8 +15,8 @@ class Player(pygame.sprite.Sprite):
         # rotation
         self.rotation = 0
         self.max_rotation = 15
-        self.rotation_speed = 128
-        self.recover_speed = 128
+        self.rotation_speed = 150
+        self.recover_speed = 150
 
         # laser cooldown
         self.can_shoot = True

@@ -2,7 +2,7 @@ from game.settings import *
 from random import randint, uniform
 
 class Meteor(pygame.sprite.Sprite):
-    def __init__(self, groups, surf):
+    def __init__(self, surf, groups):
         super().__init__(groups)
         self.scale_factor = uniform(1, 1.5)
         self.original_surf = pygame.transform.smoothscale(surf,(101*self.scale_factor,84*self.scale_factor))

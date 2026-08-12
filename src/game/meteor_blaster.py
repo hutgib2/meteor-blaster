@@ -2,35 +2,33 @@ import asyncio
 import pygame
 
 from game.settings import *
-from random import randint, uniform
-from game.star import Star
+from random import choice
 from game.player import Player
 from game.meteor import Meteor
-from game.laser import Laser
 from game.explosion import Explosion
 from game.timer import Timer
 from game.support import *
+from game.async_clock import AsyncClock
 
-# load in the bg image, make sure its the right size and display on screen
-# remove old code after
 
-class SpaceShooter():
+class MeteorBlaster():
 	def __init__(self):
 		self.running = True
 		self.game_paused = False
-		self.clock = pygame.time.Clock()
+		self.clock = AsyncClock()
 		self.start_time = pygame.time.get_ticks()
 		self.score = 0
 		self.spawn_rate = 500
 
 		# import
-		self.meteor_surf = pygame.image.load(join('assets', 'images', 'meteor.png')).convert_alpha()
-		# self.star_surf = pygame.image.load(join('assets', 'images', 'star.png')).convert_alpha()
 		self.background_surf = pygame.image.load(join('assets', 'images', 'space_background.jpg'))
 		self.background_rect = self.background_surf.get_frect(center=(WINDOW_WIDTH/2, WINDOW_HEIGHT/2))
 		
-		self.font = pygame.font.Font(join('assets', 'images', 'Oxanium-Bold.ttf'), 40)
-		self.explosion_frames = folder_importer_list('assets', 'images', 'explosion', scale_factor=0.3)
+		self.font = pygame.font.Font(join('assets', 'fonts', 'Oxanium-Bold.ttf'), 40)
+		self.explosion_frames = folder_importer_list('assets', 'animations', 'explosion', scale_factor=0.3)
+		self.meteor_surfs = folder_importer_list('assets', 'images', 'meteors')
+
+		# audio
 		self.game_music = pygame.mixer.Sound(join('assets', 'audio', 'Glorious Morning.ogg'))
 		self.game_music.set_volume(0.25)
 		self.game_music.play(loops= -1)
@@ -39,20 +37,17 @@ class SpaceShooter():
 		self.all_sprites = pygame.sprite.Group()
 		self.meteor_sprites = pygame.sprite.Group()
 		self.laser_sprites = pygame.sprite.Group()
-		
-		# for _ in range(20):
-		# 	Star(self.all_sprites, self.star_surf)
 		self.player = Player((self.all_sprites, self.laser_sprites), self.all_sprites)
 
 		# create meteor timer
-		self.meteor_timer = Timer(self.spawn_rate, lambda: Meteor((self.all_sprites, self.meteor_sprites), self.meteor_surf), repeat=True, autostart=True)
+		self.meteor_timer = Timer(self.spawn_rate, lambda: Meteor(choice(self.meteor_surfs), (self.all_sprites, self.meteor_sprites)), repeat=True, autostart=True)
 		self.spawn_rate_timer = Timer(1000, lambda: self.decrement_spawn_rate_timer(1), repeat=True, autostart=True)
 		
 	# create a new timer with an updated spawn rate 
 	def decrement_spawn_rate_timer(self, decrement):
 		if self.spawn_rate > 100:
 			self.spawn_rate -= decrement
-			self.meteor_timer = Timer(self.spawn_rate, lambda: Meteor((self.all_sprites, self.meteor_sprites), self.meteor_surf), repeat=True, autostart=True)
+			self.meteor_timer = Timer(self.spawn_rate, lambda: Meteor(choice(self.meteor_surfs), (self.all_sprites, self.meteor_sprites)), repeat=True, autostart=True)
 
 	def collisions(self):
 		collision_sprites = pygame.sprite.spritecollide(self.player, self.meteor_sprites, True, pygame.sprite.collide_mask)
@@ -77,10 +72,7 @@ class SpaceShooter():
 
 	async def run(self):
 		while self.running:
-			dt = self.clock.tick() / 1000 # getting the delta time in seconds
-			await asyncio.sleep(0)
-			
-			# event tracker
+			dt = await self.clock.tick() / 1000
 			for event in pygame.event.get():
 				if event.type == pygame.KEYDOWN and event.key == pygame.K_p:  
 					self.game_paused = not self.game_paused
@@ -100,6 +92,6 @@ class SpaceShooter():
 			screen.blit(self.background_surf, self.background_rect)
 			self.all_sprites.draw(screen)
 			self.display_score()
-			
 			pygame.display.update()
+			
 		self.game_music.stop()

@@ -12,7 +12,7 @@ class Player(pygame.sprite.Sprite):
         self.speed = 1000
         self.laser_groups = laser_groups
 
-        # rotation
+        # rotationy
         self.rotation = 0
         self.max_rotation = 15
         self.rotation_speed = 150

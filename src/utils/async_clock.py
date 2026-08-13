@@ -1,5 +1,5 @@
-import asyncio
 import pygame
+import asyncio
 
 class AsyncClock:
 	def __init__(self, fps=60):
@@ -14,4 +14,3 @@ class AsyncClock:
 		dt = now - self.previous_tick
 		self.previous_tick = now
 		return dt
-

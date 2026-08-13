@@ -41,10 +41,10 @@ class Player(pygame.sprite.Sprite):
             self.rotation += self.direction.x * self.rotation_speed * -1 * dt
             self.rotation = max(-1 * self.max_rotation, min(self.max_rotation, self.rotation))
         else: # make it rotate to its original angle when not moving
-            if self.rotation >= 0:
-                self.rotation -= self.recover_speed * dt
-            elif self.rotation <= 0:
-                self.rotation += self.recover_speed * dt
+            if self.rotation > 0:
+                self.rotation = max(0, self.rotation - (self.recover_speed * dt))
+            elif self.rotation < 0:
+                self.rotation = min(0, self.rotation + (self.recover_speed * dt))
 
         self.image = pygame.transform.rotozoom(self.original_surf, self.rotation, 1)
         self.rect = self.image.get_frect(center = self.rect.center)
